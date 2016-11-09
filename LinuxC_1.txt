@@ -1,0 +1,113 @@
+C development on Linux - Introduction - I.
+Contents[Hide]
+Introduction
+Why C?
+About C
+History
+Classification
+Our approach
+The necessary tools
+The compilation process
+Example C program
+Compilation
+Conclusion
+Author: Rares Aioanei
+1. Introduction
+What you're just reading is the beginning of series of articles dedicated to development on Linux systems. However, with minor modifications (if any), you will be able to use this knowledge you will get by reading our series on any other system that uses the same tools (OpenIndiana, BSD...). This first article will deal gradually with the intricacies of writing C code on Linux. You are expected to have basic programming knowledge, either on Linux/Unix systems or on other platforms. The idea is that you should know the basics of programming, like what a variable is or how to define a structure. Even though, you will get this information from this article, we won't insist very much on beginner-level concepts. A word of warning: we won't include everything there is to tell about C, because that would take lots of space and of course, we don't actually know everything about C.
+
+1.1. Why C?
+Some of you might argue that C is not the best beginner-level language ever. Agreed, but again, you're expected to have some basic programming knowledge, for one. Second, C and Unix, and Linux afterwards, are intimately tied together that it only seemed natural to start our development series with C. From the kernel, of which a substantial part of it is written in C, to lots of everyday user-land applications, C is used massively on your Linux system. For example, GTK is based on C, so if you're using Gnome or XFCE applications, you're using C-based applications. C is an old, well-established programming language, vital tool in many parts in the IT world, from embedded systems to mainframes. Therefore, it is only fair to assume that C skills will not only enrich your CV, but they will also help you to solve many issues on your Linux system, that is only if you take this seriously and practice a lot by reading and writing C code.
+
+2. About C
+2.1. History
+C is more than 40 years old, with beginnings at Bell Labs with Brian Kernighan, Dennis Ritchie and Ken Thompson as the "usual suspects." Unix development and C's evolution are intimately linked, as we said, because Unix was initially written in assembly, but that had lots of shortcomings. Therefore, when moving to the PDP-11 as the main hardware platform, the developers started C as the as a core language for Unix. In 1978, Kernighan and Ritchie wrote, "The C Programming Language," a book that is today as it was 20 years ago: THE book on C programming. We heartily recommend you get it.
+
+2.2. Classification
+There are always people keen on classification of things and of course, programming is no different. Joking aside, since we're at the beginning, we thought you should know that C is a procedural structured programming language, with weak typing. What we just said, in English, is that C uses procedures (the usual name used by C programmers, and the one we'll use as well, is functions however), that it uses a structured approach (think blocks of code) and finally, it supports implicit type conversions. If you don't know what any of the above means, fear not, you'll find out!
+
+2.3. Our approach
+This article which is just the introductory part and we will regularly publish next parts where each chapter will deal with an important part of the language: variables, pointers, structs, etc. ( subscribe to RSS feed if you have not done so yet ) At the end of the theoretical part, we will show you a practical example, for which we chose yest, a tiny piece of software written by Kimball Hawkins (thanks, Kimball). We will compile it, then package it for Debian and Fedora systems. Debian developer Andree Leidenfrost will then show you how to submit our new package into Debian repository, making sure we respect all package requirements to be admitted to Debian distribution (thanks, Andree). We recommend you to try our examples on your system, take some time to examine the code and try to make modifications of your own.
+
+3. The necessary tools
+Before we begin, let us make sure we have all essential tools installed on your Linux system. You will need a compiler, namely gcc, the binutils package and a text editor or an IDE. Whether you choose text editor or some sort of IDE depends largely on your preferences, but more on that later. Depending on your Linux distribution and installation options you have used, you might already have the necessary tools installed. We put together a tiny script to help you see whether you have all mandatory development tools installed:
+
+#!/bin/sh
+gcc -v
+if [ $? != 0 ]; then
+       echo "GCC is not installed!"
+fi
+ld -v
+if [ $? != 0 ]; then
+        echo "Please install binutils!"
+fi
+Save this script as devtoolscheck.sh, run it:
+
+ $ sh devtoolscheck.sh
+On my machine I get following output:
+
+$ sh devtools.sh 
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.6.1/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Debian 4.6.1-4' --with-bugurl=
+file:///usr/share/doc/gcc-4.6/README.Bugs --enable-languages=c,c++,fortran,objc,obj-c++,go 
+--prefix=/usr --program-suffix=-4.6 --enable-shared --enable-multiarch 
+[config options snipped]
+Thread model: posix
+gcc version 4.6.1 (Debian 4.6.1-4) 
+GNU ld (GNU Binutils for Debian) 2.21.52.20110606
+Why you need binutils binaries and gcc, you will see shortly. Now let's focus a bit on "editor vs IDE" question.
+
+The only thing we will advise you in this respect is "use what you feel comfortable with and disregard what others tell you". This matter is very subjective and it depends on many variables. For example, if you develop (or used to develop) on other operating systems, you might be used to an IDE. You will find many good IDEs on Linux, including Eclipse, Geany, KDevelop or Anjuta. Try installing them to see what you find more suitable. On the other hand, if you want to go the simple editor way, there are lots of options here as well: vi(m), emacs, kate, nano, jed and so on. By searching the Internet you will find a lot of discussions regarding what the best editor is. We say install few of them and find out what suits you best. You are the only judge of this, and it will be a tool you will use frequently, so take your your time, use it, read about it and get familiar with it. Regardless of your choice, we will assume that you have made your choice in regards to the editing tool and you are familiar with its use.
+
+4. The compilation process
+C program compilation process
+
+In simple words, this process is what starts from the source code you wrote and if all goes well the result is an executable binary or a library. Needless to say, there's more to it but it is essential for you to understand the above sentence before you move on. You do not need to memorize all the concepts now as they will become clearer later. At this stage it's only important to get the general idea.
+
+Let's say we have the source code written and now we want a compiler to process it and give us the executable binary. The workflow of this process is illustrated on your right.
+
+Please note that this is applicable only to C, which is a compiled language, as opposed to interpreted languages (Perl, Python, Shell), and we will refer strictly to gcc and friends for the rest of our guide. As the figure on your right illustrates the preprocessor (cpp) takes your source code, looks for preprocessor instructions (in C, they start with a hash) and if everything looks right, the result is an output understandable by compiler. The compiler (gcc) does all the hard work, including code optimization for the underlying hardware (if you are interested in compiler theory or cross-compilation, there are lots of good books on the subject, but we assume a more beginner level here). The result is assembly code, intimately close to the machine, from which the binaries will be generated (as is the tool). In the end, depending on the options and the code, "ld" will link the executable to all necessary libraries and voila! the end result: your program. If you want to see all the resulting intermediate files, gcc flag -save-temps as will help you to do so. We recommend you read the gcc manual page, at least frugally, and make sure that your compiler us up to date. You will get used to usual gcc flags by reading our examples, but you are expected to know what they do, not just copy and paste commands you see on the screen.
+
+5. Example C program
+Every self-respecting programming tutorial starts with a "Hello, world" program. This program does nothing else but print "Hello, world!" on the screen, then exits. It's used to illustrate the very basic structure of a program and some essential concepts. So, without further ado, here it is.
+
+#include <stdio.h>
+/* This is a comment */
+
+int main()
+{
+    printf("Hello, world!\n");
+    return 0;
+}
+Now, let us dissect the program line by line and see what each line represents. The first one is a preprocessor directive (see above) which asks for the stdio.h file, which provides the definition for the printf function. Header files are files that usually contain various definitions (functions, variables...) and make .c files less cluttered. All what a source file (.c) will need is an #include statement and possibly an argument to the linker. Everything that's defined in the included header file will be available in your source code.
+
+main() is a mandatory function in every C program. As the name states, the main activity will happen here, regardless of how many functions you have defined. int main() means that this function does not have any arguments (the empty parentheses) and that it returns an integer (the initial int). All these will be discussed later. The most important thing here is the printf function, which takes our text as an argument and displays it. "\n" means "newline" and it's the equivalent of using the Enter key (or ^M). It is called an escape sequence and all escape sequences in C begin with "\". For example, to better understand what an escape sequence is, imagine you're writing HTML code and you need to print a "<" character. HTML's syntax uses angle brackets to define HTML tags, so chances are your bracket will be interpreted as HTML code instead of being displayed. So, what to do? We escape it with "&lt;" and it will appear properly. Just the same, if you want to insert a newline character, you can't type it directly, as the compiler could care less if you write your program on a single line or not and therefore you you need to escape your new line character with "\n".
+
+return 0 tells the compiler that everything is ok and the execution of main() function ends there. That is because 0 is the code for successful execution, while values greater than 0 (integers) is an indication that something went wrong. The curly braces that begin and end the main function delimit its' execution block, that is, what happens in main(), stays in main(). You may have noticed the semicolons at the end of the statements: they are mandatory as a sign that the current statement ended there, but they are not to be used in preprocessor directives as #include.
+
+6. Compilation
+Compilation will be discussed in more details in upcoming parts of this guide. But for the completeness here is a simple command line example on how to compile and execute our first "Hello World" C program:
+
+$ gcc -o hello hello.c 
+$ ./hello 
+Hello, world!
+7. Conclusion
+We hope we didn't cram too much information in your brain and that you will enjoy staying with us on this programming tutorial. Part 2 will be dealing with a comparison between C and other programming languages in order to help those who already have some experience in development.
+
+Here is what you can expect next:
+
+I. C development on Linux - Introduction
+II. Comparison between C and other programming languages
+III. Types, operators, variables
+IV. Flow control
+V. Functions
+VI. Pointers and arrays
+VII. Structures
+VIII. Basic I/O
+IX. Coding style and recommendations
+X. Building a program
+XI. Packaging for Debian and Fedora
+XII. Getting a package in the official Debian repositories
+
